@@ -6,8 +6,9 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+
+import lombok.SneakyThrows;
 
 /**
  * Created by novy on 08.05.16.
@@ -20,7 +21,8 @@ class NowThisIsWhatICallUgly {
         this.androidContext = androidContext;
     }
 
-    public String fileNameFrom(InputStream inputStream) throws IOException {
+    @SneakyThrows
+    public String fileNameFrom(InputStream inputStream) {
         final File temporaryDir = androidContext.getDir("temporary", Context.MODE_PRIVATE);
         final File temporaryFile = File.createTempFile("tmp-", ".tmp", temporaryDir);
         temporaryFile.deleteOnExit();

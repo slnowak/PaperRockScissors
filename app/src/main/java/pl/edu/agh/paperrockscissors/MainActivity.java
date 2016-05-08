@@ -6,44 +6,63 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacv.AndroidFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 
-import java.io.IOException;
+import java.io.InputStream;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import lombok.SneakyThrows;
+
+import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 
 public class MainActivity extends AppCompatActivity {
+
+    @BindView(R.id.recognizeLena) Button lenaRecognitionButton;
+    @BindView(R.id.lenaView) ImageView lenaView;
+
+    private DummyClassifier classifier;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final Button lenaRecognitionButton = (Button) findViewById(R.id.recognizeLena);
-        lenaRecognitionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final ImageView imageView = (ImageView) findViewById(R.id.lenaView);
-                final Mat withRecognizedLena = uglyStuff();
-                imageView.setImageBitmap(
-                        new AndroidFrameConverter().convert(
-                                new OpenCVFrameConverter.ToMat().convert(withRecognizedLena)
-                        )
-                );
-            }
-        });
+        ButterKnife.bind(this);
+        classifier = new DummyClassifier(fileNameFor("face.xml"));
     }
 
-    private Mat uglyStuff() {
-        try {
-            final NowThisIsWhatICallUgly fileReaderHack = new NowThisIsWhatICallUgly(this);
-            final Mat recognitionResult = StupidOpenCVExample.tryToRecognize(
-                    fileReaderHack.fileNameFrom(getAssets().open("lena.png")),
-                    fileReaderHack.fileNameFrom(getAssets().open("face.xml"))
-            );
-            return recognitionResult;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+    @OnClick(R.id.recognizeLena)
+    public void recognizeFace(View view) {
+        final Mat withRecognizedLena = classifier.recognizeIn(
+                loadImage("lena.png")
+        );
+
+        lenaView.setImageBitmap(
+                new AndroidFrameConverter().convert(
+                        new OpenCVFrameConverter.ToMat().convert(withRecognizedLena)
+                )
+        );
+    }
+
+    private IplImage loadImage(String imageAssetName) {
+        return cvLoadImage(
+                fileNameFor(imageAssetName)
+        );
+    }
+
+    private String fileNameFor(String assetName) {
+        final NowThisIsWhatICallUgly uglyFileReader = new NowThisIsWhatICallUgly(this);
+        return uglyFileReader.fileNameFrom(
+                assetFor(assetName)
+        );
+    }
+
+    @SneakyThrows
+    private InputStream assetFor(String name) {
+        return getAssets().open(name);
     }
 }
