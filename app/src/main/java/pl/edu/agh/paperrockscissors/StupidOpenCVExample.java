@@ -1,29 +1,40 @@
 package pl.edu.agh.paperrockscissors;
 
+import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.CvMemStorage;
+import org.bytedeco.javacpp.opencv_core.CvRect;
 import org.bytedeco.javacpp.opencv_core.CvSeq;
 import org.bytedeco.javacpp.opencv_core.IplImage;
+import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_objdetect.CvHaarClassifierCascade;
 
 import java.io.IOException;
 
-import static org.bytedeco.javacpp.helper.opencv_objdetect.cvHaarDetectObjects;
 import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import static org.bytedeco.javacpp.opencv_core.cvClearMemStorage;
+import static org.bytedeco.javacpp.opencv_core.cvGetSeqElem;
 import static org.bytedeco.javacpp.opencv_core.cvLoad;
+import static org.bytedeco.javacpp.opencv_core.cvPoint;
+import static org.bytedeco.javacpp.opencv_core.cvarrToMat;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
+import static org.bytedeco.javacpp.opencv_imgproc.CV_AA;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_RGB2GRAY;
 import static org.bytedeco.javacpp.opencv_imgproc.cvCvtColor;
+import static org.bytedeco.javacpp.opencv_imgproc.cvRectangle;
+import static org.bytedeco.javacpp.opencv_objdetect.cvHaarDetectObjects;
+
 
 /**
  * Created by novy on 08.05.16.
  */
 public class StupidOpenCVExample {
 
-    public static CvSeq weAllLoveStaticMethodsThatDoesUglyStuff(String imageFileName, String xmlFileName) throws IOException {
+    public static Mat tryToRecognize(String imageFileName, String xmlFileName) throws IOException {
         final IplImage img = loadImage(imageFileName);
         final CvHaarClassifierCascade classifier = loadClassifier(xmlFileName);
-        return doRecognize(img, classifier);
+        return withRecognitionRectangles(
+                doRecognize(img, classifier), img
+        );
     }
 
     private static CvSeq doRecognize(IplImage image, CvHaarClassifierCascade classifier) {
@@ -47,4 +58,19 @@ public class StupidOpenCVExample {
         return new CvHaarClassifierCascade(cvLoad(xmlFileName));
     }
 
+    private static Mat withRecognitionRectangles(CvSeq recognitionResult, IplImage imgToModify) {
+        for (int i = 0; i < recognitionResult.total(); i++) {
+            CvRect r = new CvRect(cvGetSeqElem(recognitionResult, i));
+            cvRectangle(
+                    imgToModify,
+                    cvPoint(r.x(), r.y()),
+                    cvPoint(r.width() + r.x(), r.height() + r.y()),
+                    opencv_core.CvScalar.RED,
+                    2,
+                    CV_AA,
+                    0);
+        }
+
+        return cvarrToMat(imgToModify);
+    }
 }
