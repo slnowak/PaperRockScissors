@@ -1,10 +1,13 @@
 package pl.edu.agh.paperrockscissors;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+
+import com.jakewharton.rxbinding.view.RxView;
 
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_core.Mat;
@@ -15,15 +18,15 @@ import java.io.InputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import lombok.SneakyThrows;
+import rx.Observable;
 
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.recognizeLena) Button lenaRecognitionButton;
-    @BindView(R.id.lenaView) ImageView lenaView;
+    @BindView(R.id.recognizeLena)
+    Button lenaRecognitionButton;
 
     private DummyClassifier classifier;
 
@@ -33,18 +36,27 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         classifier = new DummyClassifier(fileNameFor("face.xml"));
+
+        final Observable<ImageParsed> recognizedImages = RxView.clicks(lenaRecognitionButton)
+                .map(this::tryToRecognizeLena)
+                .map(this::convertToBitmap)
+                .map(ImageParsed::new);
+
+        final FragmentManager fm = getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
+        ft.add(R.id.preview_layout, PreviewFragment.newInstance(recognizedImages));
+        ft.commit();
     }
 
-    @OnClick(R.id.recognizeLena)
-    public void recognizeFace(View view) {
-        final Mat withRecognizedLena = classifier.recognizeIn(
+    private Mat tryToRecognizeLena(Void ignored) {
+        return classifier.recognizeIn(
                 loadImage("lena.png")
         );
+    }
 
-        lenaView.setImageBitmap(
-                new AndroidFrameConverter().convert(
-                        new OpenCVFrameConverter.ToMat().convert(withRecognizedLena)
-                )
+    private Bitmap convertToBitmap(Mat mat) {
+        return new AndroidFrameConverter().convert(
+                new OpenCVFrameConverter.ToMat().convert(mat)
         );
     }
 

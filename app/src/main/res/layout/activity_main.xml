@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,16 +15,14 @@
         android:layout_height="wrap_content"
         android:text="Try to recognize Lena!"
         android:id="@+id/recognizeLena"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_gravity="center_horizontal|top" />
 
-    <ImageView
+    <fragment
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/lenaView"
-        android:layout_below="@+id/recognizeLena"
-        android:layout_alignLeft="@+id/recognizeLena"
-        android:layout_alignStart="@+id/recognizeLena"
-        android:layout_marginTop="66dp" />
+        android:name="pl.edu.agh.paperrockscissors.PreviewFragment"
+        android:id="@+id/preview_layout"
+        android:layout_gravity="center"
+        tools:layout="@layout/preview_fragment" />
 
-</RelativeLayout>
+</FrameLayout>
