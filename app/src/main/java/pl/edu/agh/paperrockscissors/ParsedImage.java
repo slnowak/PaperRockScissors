@@ -9,7 +9,7 @@ import lombok.Value;
  */
 
 @Value
-public class ImageParsed {
+public class ParsedImage {
 
     Bitmap bitmap;
 

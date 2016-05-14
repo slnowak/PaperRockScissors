@@ -6,32 +6,33 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by novy on 14.05.16.
  */
 public class PreviewFragment extends Fragment {
-    @BindView(R.id.lenaView)
-    ImageView lenaView;
+    @BindView(R.id.previewImageView)
+    ImageView previewImageView;
 
     private Subscription imagesSubscription;
 
-    public static PreviewFragment newInstance(Observable<ImageParsed> imagesToDisplay) {
+    public static PreviewFragment newInstance(Observable<ParsedImage> imagesToDisplay) {
         final PreviewFragment newFragment = new PreviewFragment();
         newFragment.subscribeTo(imagesToDisplay);
         return newFragment;
     }
 
-    private void subscribeTo(Observable<ImageParsed> images) {
-        imagesSubscription = images
-                .subscribe(imageParsed -> lenaView.setImageBitmap(imageParsed.getBitmap()));
+    private void subscribeTo(Observable<ParsedImage> images) {
+        imagesSubscription = images.subscribe(this::updatePreview);
+    }
+
+    private void updatePreview(ParsedImage parsedImages) {
+        previewImageView.setImageBitmap(parsedImages.getBitmap());
     }
 
     @Override
