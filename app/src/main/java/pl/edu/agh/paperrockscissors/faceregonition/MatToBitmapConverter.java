@@ -10,8 +10,13 @@ import org.bytedeco.javacv.OpenCVFrameConverter;
  * Created by novy on 15.05.16.
  */
 class MatToBitmapConverter {
-    private final OpenCVFrameConverter.ToMat toFrameConverter = new OpenCVFrameConverter.ToMat();
-    private final AndroidFrameConverter toBitmapConverter = new AndroidFrameConverter();
+    private final OpenCVFrameConverter.ToMat toFrameConverter;
+    private final AndroidFrameConverter toBitmapConverter;
+
+    MatToBitmapConverter() {
+        toFrameConverter = new OpenCVFrameConverter.ToMat();
+        toBitmapConverter = new AndroidFrameConverter();
+    }
 
     public Bitmap toBitmap(Mat from) {
         return toBitmapConverter.convert(

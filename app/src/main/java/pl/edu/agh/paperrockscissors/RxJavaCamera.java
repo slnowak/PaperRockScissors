@@ -10,7 +10,6 @@ import android.graphics.YuvImage;
 import android.hardware.Camera;
 
 import java.io.ByteArrayOutputStream;
-import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
 import rx.Observable;

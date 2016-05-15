@@ -11,8 +11,13 @@ import org.bytedeco.javacv.OpenCVFrameConverter;
  */
 class BitmapToIplImageConverter {
 
-    private final AndroidFrameConverter toFrameConverter = new AndroidFrameConverter();
-    private final OpenCVFrameConverter.ToIplImage toIplImageConverter = new OpenCVFrameConverter.ToIplImage();
+    private final AndroidFrameConverter toFrameConverter;
+    private final OpenCVFrameConverter.ToIplImage toIplImageConverter;
+
+    BitmapToIplImageConverter() {
+        toFrameConverter = new AndroidFrameConverter();
+        toIplImageConverter = new OpenCVFrameConverter.ToIplImage();
+    }
 
     public IplImage toIplImage(Bitmap from) {
         return toIplImageConverter.convert(
