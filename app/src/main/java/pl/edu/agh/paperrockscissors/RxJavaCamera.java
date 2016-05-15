@@ -3,16 +3,19 @@ package pl.edu.agh.paperrockscissors;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
 
 import java.io.ByteArrayOutputStream;
+import java.util.concurrent.TimeUnit;
 
 import lombok.SneakyThrows;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
@@ -46,14 +49,18 @@ public class RxJavaCamera {
     @SneakyThrows
     private Camera openCamera() {
         final Camera camera = Camera.open();
-
         surfaceTexture = new SurfaceTexture(10);
         camera.setPreviewTexture(surfaceTexture);
+        final Camera.Parameters parameters = camera.getParameters();
+        parameters.setPreviewSize(320, 240);
+        camera.setParameters(parameters);
         return camera;
     }
 
     public Observable<Bitmap> streamBitmaps() {
-        return withThreadsSpecified(bitmaps).map(this::toBitmap);
+        return withThreadsSpecified(bitmaps)
+                .map(this::toBitmap)
+                .map(rotateBy(90));
     }
 
     private byte[] fromNv21ToJpeg(byte[] rawBytes) {
@@ -73,5 +80,13 @@ public class RxJavaCamera {
     private Bitmap toBitmap(byte[] rawBytes) {
         final byte[] convertedToJpeg = fromNv21ToJpeg(rawBytes);
         return BitmapFactory.decodeByteArray(convertedToJpeg, 0, convertedToJpeg.length);
+    }
+
+    private Func1<Bitmap, Bitmap> rotateBy(int degree) {
+        return notRotated -> {
+            final Matrix rotationMatrix = new Matrix();
+            rotationMatrix.postRotate(degree);
+            return Bitmap.createBitmap(notRotated, 0, 0, notRotated.getWidth(), notRotated.getHeight(), rotationMatrix, true);
+        };
     }
 }

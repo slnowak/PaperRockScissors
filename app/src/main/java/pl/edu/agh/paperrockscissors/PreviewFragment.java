@@ -1,6 +1,7 @@
 package pl.edu.agh.paperrockscissors;
 
 import android.app.Fragment;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,18 +22,18 @@ public class PreviewFragment extends Fragment {
 
     private Subscription imagesSubscription;
 
-    public static PreviewFragment newInstance(Observable<ParsedImage> imagesToDisplay) {
+    public static PreviewFragment newInstance(Observable<Bitmap> imagesToDisplay) {
         final PreviewFragment newFragment = new PreviewFragment();
         newFragment.subscribeTo(imagesToDisplay);
         return newFragment;
     }
 
-    private void subscribeTo(Observable<ParsedImage> images) {
+    private void subscribeTo(Observable<Bitmap> images) {
         imagesSubscription = images.subscribe(this::updatePreview);
     }
 
-    private void updatePreview(ParsedImage parsedImages) {
-        previewImageView.setImageBitmap(parsedImages.getBitmap());
+    private void updatePreview(Bitmap parsedImage) {
+        previewImageView.setImageBitmap(parsedImage);
     }
 
     @Override

@@ -1,4 +1,6 @@
-package pl.edu.agh.paperrockscissors;
+package pl.edu.agh.paperrockscissors.faceregonition;
+
+import android.graphics.Bitmap;
 
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.CvMemStorage;
@@ -24,12 +26,16 @@ import static org.bytedeco.javacpp.opencv_imgproc.cvRectangle;
 /**
  * Created by novy on 08.05.16.
  */
-public class DummyClassifier {
+public class FaceClassifier {
 
     private final CvHaarClassifierCascade classifier;
+    private final BitmapToIplImageConverter toIplImageConverter;
+    private final MatToBitmapConverter toBitmapConverter;
 
-    public DummyClassifier(String xmlFile) {
+    public FaceClassifier(String xmlFile) {
         classifier = loadClassifier(xmlFile);
+        toIplImageConverter = new BitmapToIplImageConverter();
+        toBitmapConverter = new MatToBitmapConverter();
     }
 
     @SneakyThrows
@@ -37,7 +43,13 @@ public class DummyClassifier {
         return new CvHaarClassifierCascade(cvLoad(xmlFileName));
     }
 
-    public Mat recognizeIn(IplImage image) {
+    public Bitmap recognizeIn(Bitmap source) {
+        final IplImage asIplImage = toIplImageConverter.toIplImage(source);
+        final Mat asMat = recognizeIn(asIplImage);
+        return toBitmapConverter.toBitmap(asMat);
+    }
+
+    private Mat recognizeIn(IplImage image) {
         final CvSeq recognitionResult = doRecognizeIn(
                 grayScaled(image)
         );
