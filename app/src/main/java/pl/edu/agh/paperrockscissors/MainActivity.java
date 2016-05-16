@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        classifier = new FaceClassifier(fileNameFor("face.xml"));
+        classifier = new FaceClassifier(fileNameFor("scissors.xml"));
 
         final Observable<Bitmap> bitmaps = RxJavaCamera.open()
                 .flatMap(RxJavaCamera::streamBitmaps)
