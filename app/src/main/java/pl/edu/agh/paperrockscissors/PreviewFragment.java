@@ -7,9 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import pl.edu.agh.paperrockscissors.classification.ClassificationMetadata;
 import rx.Observable;
 import rx.Subscription;
 
@@ -19,21 +21,24 @@ import rx.Subscription;
 public class PreviewFragment extends Fragment {
     @BindView(R.id.previewImageView)
     ImageView previewImageView;
+    @BindView(R.id.textView)
+    TextView textView;
 
     private Subscription imagesSubscription;
 
-    public static PreviewFragment newInstance(Observable<Bitmap> imagesToDisplay) {
+    public static PreviewFragment newInstance(Observable<ClassificationMetadata> imagesToDisplay) {
         final PreviewFragment newFragment = new PreviewFragment();
         newFragment.subscribeTo(imagesToDisplay);
         return newFragment;
     }
 
-    private void subscribeTo(Observable<Bitmap> images) {
+    private void subscribeTo(Observable<ClassificationMetadata> images) {
         imagesSubscription = images.subscribe(this::updatePreview);
     }
 
-    private void updatePreview(Bitmap parsedImage) {
-        previewImageView.setImageBitmap(parsedImage);
+    private void updatePreview(ClassificationMetadata classificationMetadata) {
+        previewImageView.setImageBitmap(classificationMetadata.getImage());
+        textView.setText(classificationMetadata.getType().toString());
     }
 
     @Override

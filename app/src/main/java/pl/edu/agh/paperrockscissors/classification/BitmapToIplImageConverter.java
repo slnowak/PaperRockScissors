@@ -1,4 +1,4 @@
-package pl.edu.agh.paperrockscissors.faceregonition;
+package pl.edu.agh.paperrockscissors.classification;
 
 import android.graphics.Bitmap;
 

@@ -1,4 +1,4 @@
-package pl.edu.agh.paperrockscissors.faceregonition;
+package pl.edu.agh.paperrockscissors.classification;
 
 import android.graphics.Bitmap;
 
@@ -6,7 +6,6 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.CvMemStorage;
 import org.bytedeco.javacpp.opencv_core.CvSeq;
 import org.bytedeco.javacpp.opencv_core.IplImage;
-import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_objdetect.CvHaarClassifierCascade;
 
 import lombok.SneakyThrows;
@@ -26,16 +25,18 @@ import static org.bytedeco.javacpp.opencv_imgproc.cvRectangle;
 /**
  * Created by novy on 08.05.16.
  */
-public class FaceClassifier {
+public class ImageClassifier implements Classifier {
 
     private final CvHaarClassifierCascade classifier;
+    private final ClassificationType classificationType;
     private final BitmapToIplImageConverter toIplImageConverter;
     private final MatToBitmapConverter toBitmapConverter;
 
-    public FaceClassifier(String xmlFile) {
-        classifier = loadClassifier(xmlFile);
-        toIplImageConverter = new BitmapToIplImageConverter();
-        toBitmapConverter = new MatToBitmapConverter();
+    public ImageClassifier(String classificatorXmlFile, ClassificationType classificationType) {
+        this.classifier = loadClassifier(classificatorXmlFile);
+        this.toIplImageConverter = new BitmapToIplImageConverter();
+        this.toBitmapConverter = new MatToBitmapConverter();
+        this.classificationType = classificationType;
     }
 
     @SneakyThrows
@@ -43,18 +44,17 @@ public class FaceClassifier {
         return new CvHaarClassifierCascade(cvLoad(xmlFileName));
     }
 
-    public Bitmap recognizeIn(Bitmap source) {
+    public ClassificationMetadata classify(Bitmap source) {
         final IplImage asIplImage = toIplImageConverter.toIplImage(source);
-        final Mat asMat = recognizeIn(asIplImage);
-        return toBitmapConverter.toBitmap(asMat);
+        return doClassification(asIplImage);
     }
 
-    private Mat recognizeIn(IplImage image) {
+    private ClassificationMetadata doClassification(IplImage image) {
         final CvSeq recognitionResult = doRecognizeIn(
                 grayScaled(image)
         );
 
-        return withRecognitionRectangles(recognitionResult, image);
+        return withRecognitionRectanglesAndScore(recognitionResult, image);
     }
 
     private IplImage grayScaled(IplImage originalImage) {
@@ -63,17 +63,22 @@ public class FaceClassifier {
         return grayImagePlaceholder;
     }
 
-
     private CvSeq doRecognizeIn(IplImage image) {
         final CvMemStorage cvMemStorage = CvMemStorage.create();
         final CvSeq recognitionResult = cvHaarDetectObjects(
-                image, classifier, cvMemStorage, 1.1, 1, 0
+                image, classifier, cvMemStorage, 1.1, 2, 0
         );
         cvClearMemStorage(cvMemStorage);
         return recognitionResult;
     }
 
-    private Mat withRecognitionRectangles(CvSeq recognitionResult, IplImage imgToModify) {
+    private long score(opencv_core.CvRect rect) {
+        final double scale = 1.1;
+        return Math.round(rect.width() * rect.height() * scale);
+    }
+
+    private ClassificationMetadata withRecognitionRectanglesAndScore(CvSeq recognitionResult, IplImage imgToModify) {
+        long bestScore = Integer.MIN_VALUE;
         for (int i = 0; i < recognitionResult.total(); i++) {
             opencv_core.CvRect r = new opencv_core.CvRect(cvGetSeqElem(recognitionResult, i));
             cvRectangle(
@@ -84,8 +89,13 @@ public class FaceClassifier {
                     2,
                     CV_AA,
                     0);
+            bestScore = Math.max(bestScore, score(r));
         }
 
-        return cvarrToMat(imgToModify);
+        return new ClassificationMetadata(
+                toBitmapConverter.toBitmap(cvarrToMat(imgToModify)),
+                classificationType,
+                bestScore
+        );
     }
 }
