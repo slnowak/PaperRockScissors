@@ -1,7 +1,6 @@
-package pl.edu.agh.paperrockscissors.classification;
+package pl.edu.agh.paperrockscissors.classification.opencv;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 
 import com.annimon.stream.Optional;
 import com.annimon.stream.Stream;
@@ -9,16 +8,20 @@ import com.annimon.stream.function.Function;
 import com.annimon.stream.function.Predicate;
 import com.annimon.stream.function.Supplier;
 
-public class CompositeImageClassifier implements Classifier {
-    private static final int CLASSIFICATION_THRESHOLD = 10000;
-    private final ImageClassifier paperClassifier;
-    private final ImageClassifier rockClassifier;
-    private final ImageClassifier scissorsClassifier;
+import pl.edu.agh.paperrockscissors.classification.ClassificationMetadata;
+import pl.edu.agh.paperrockscissors.classification.ClassificationType;
+import pl.edu.agh.paperrockscissors.classification.PaperRockScissorsClassifier;
 
-    public CompositeImageClassifier(ImageClassifier paperClassifier, ImageClassifier rockClassifier, ImageClassifier scissorsClassifier) {
-        this.paperClassifier = paperClassifier;
-        this.rockClassifier = rockClassifier;
-        this.scissorsClassifier = scissorsClassifier;
+public class CompositePaperRockScissorsClassifier implements PaperRockScissorsClassifier {
+    private static final int CLASSIFICATION_THRESHOLD = 10000;
+    private final PaperRockScissorsClassifier paperPaperRockScissorsClassifier;
+    private final PaperRockScissorsClassifier rockPaperRockScissorsClassifier;
+    private final PaperRockScissorsClassifier scissorsPaperRockScissorsClassifier;
+
+    public CompositePaperRockScissorsClassifier(PaperRockScissorsClassifier paperPaperRockScissorsClassifier, PaperRockScissorsClassifier rockPaperRockScissorsClassifier, PaperRockScissorsClassifier scissorsPaperRockScissorsClassifier) {
+        this.paperPaperRockScissorsClassifier = paperPaperRockScissorsClassifier;
+        this.rockPaperRockScissorsClassifier = rockPaperRockScissorsClassifier;
+        this.scissorsPaperRockScissorsClassifier = scissorsPaperRockScissorsClassifier;
     }
 
     @Override
@@ -30,8 +33,8 @@ public class CompositeImageClassifier implements Classifier {
     }
 
     private Optional<ClassificationMetadata> paperOrRock(Bitmap source) {
-        final ClassificationMetadata rockClassification = rockClassifier.classify(source);
-        final ClassificationMetadata paperClassification = paperClassifier.classify(source);
+        final ClassificationMetadata rockClassification = rockPaperRockScissorsClassifier.classify(source);
+        final ClassificationMetadata paperClassification = paperPaperRockScissorsClassifier.classify(source);
 
         return Stream.of(rockClassification, paperClassification)
                 .filter(exceedsClassificationThreshold())
@@ -44,7 +47,7 @@ public class CompositeImageClassifier implements Classifier {
     }
 
     private Supplier<ClassificationMetadata> scissorsOrNothing(Bitmap source) {
-        return () -> Optional.of(scissorsClassifier.classify(source))
+        return () -> Optional.of(scissorsPaperRockScissorsClassifier.classify(source))
                 .filter(exceedsClassificationThreshold())
                 .orElseGet(notRecognized(source));
     }

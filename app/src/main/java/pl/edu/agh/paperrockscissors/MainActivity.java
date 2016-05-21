@@ -5,35 +5,30 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import java.io.InputStream;
-
 import butterknife.ButterKnife;
-import lombok.SneakyThrows;
 import pl.edu.agh.paperrockscissors.classification.ClassificationMetadata;
-import pl.edu.agh.paperrockscissors.classification.ClassificationType;
-import pl.edu.agh.paperrockscissors.classification.Classifier;
-import pl.edu.agh.paperrockscissors.classification.CompositeImageClassifier;
-import pl.edu.agh.paperrockscissors.classification.ImageClassifier;
+import pl.edu.agh.paperrockscissors.classification.PaperRockScissorsClassifier;
+import pl.edu.agh.paperrockscissors.classification.PaperRockScissorsClassifierFactory;
+import pl.edu.agh.paperrockscissors.classification.opencv.CompositeClassifierFactory;
 import rx.Observable;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Classifier classifier;
+    private PaperRockScissorsClassifierFactory classifierFactory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        classifier = new CompositeImageClassifier(
-                new ImageClassifier(fileNameFor("paper2.xml"), ClassificationType.PAPER),
-                new ImageClassifier(fileNameFor("rock2.xml"), ClassificationType.ROCK),
-                new ImageClassifier(fileNameFor("scissors.xml"), ClassificationType.SCISSORS)
-        );
+        classifierFactory = new CompositeClassifierFactory(this);
+
+        final PaperRockScissorsClassifier paperRockScissorsClassifier =
+                classifierFactory.paperRockScissorsClassifier();
 
         final Observable<ClassificationMetadata> bitmaps = RxJavaCamera.open()
                 .flatMap(RxJavaCamera::streamBitmaps)
-                .map(src -> classifier.classify(src));
+                .map(paperRockScissorsClassifier::classify);
 
         startPreviewFragment(bitmaps);
     }
@@ -43,17 +38,5 @@ public class MainActivity extends AppCompatActivity {
         final FragmentTransaction ft = fm.beginTransaction();
         ft.add(R.id.preview_layout, PreviewFragment.newInstance(images));
         ft.commit();
-    }
-
-    private String fileNameFor(String assetName) {
-        final NowThisIsWhatICallUgly uglyFileReader = new NowThisIsWhatICallUgly(this);
-        return uglyFileReader.fileNameFrom(
-                assetFor(assetName)
-        );
-    }
-
-    @SneakyThrows
-    private InputStream assetFor(String name) {
-        return getAssets().open(name);
     }
 }

@@ -1,4 +1,4 @@
-package pl.edu.agh.paperrockscissors.classification;
+package pl.edu.agh.paperrockscissors.classification.opencv;
 
 import android.graphics.Bitmap;
 

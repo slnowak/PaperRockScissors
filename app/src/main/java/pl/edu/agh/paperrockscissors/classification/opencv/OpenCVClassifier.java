@@ -1,4 +1,4 @@
-package pl.edu.agh.paperrockscissors.classification;
+package pl.edu.agh.paperrockscissors.classification.opencv;
 
 import android.graphics.Bitmap;
 
@@ -8,13 +8,14 @@ import org.bytedeco.javacpp.opencv_core.CvSeq;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_objdetect.CvHaarClassifierCascade;
 
-import lombok.SneakyThrows;
+import pl.edu.agh.paperrockscissors.classification.ClassificationMetadata;
+import pl.edu.agh.paperrockscissors.classification.ClassificationType;
+import pl.edu.agh.paperrockscissors.classification.PaperRockScissorsClassifier;
 
 import static org.bytedeco.javacpp.helper.opencv_objdetect.cvHaarDetectObjects;
 import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import static org.bytedeco.javacpp.opencv_core.cvClearMemStorage;
 import static org.bytedeco.javacpp.opencv_core.cvGetSeqElem;
-import static org.bytedeco.javacpp.opencv_core.cvLoad;
 import static org.bytedeco.javacpp.opencv_core.cvPoint;
 import static org.bytedeco.javacpp.opencv_core.cvarrToMat;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_AA;
@@ -25,23 +26,20 @@ import static org.bytedeco.javacpp.opencv_imgproc.cvRectangle;
 /**
  * Created by novy on 08.05.16.
  */
-public class ImageClassifier implements Classifier {
+public class OpenCVClassifier implements PaperRockScissorsClassifier {
 
     private final CvHaarClassifierCascade classifier;
     private final ClassificationType classificationType;
     private final BitmapToIplImageConverter toIplImageConverter;
     private final MatToBitmapConverter toBitmapConverter;
 
-    public ImageClassifier(String classificatorXmlFile, ClassificationType classificationType) {
-        this.classifier = loadClassifier(classificatorXmlFile);
+    public OpenCVClassifier(CvHaarClassifierCascade classifier,
+                            ClassificationType classificationType) {
+
+        this.classifier = classifier;
+        this.classificationType = classificationType;
         this.toIplImageConverter = new BitmapToIplImageConverter();
         this.toBitmapConverter = new MatToBitmapConverter();
-        this.classificationType = classificationType;
-    }
-
-    @SneakyThrows
-    private static CvHaarClassifierCascade loadClassifier(String xmlFileName) {
-        return new CvHaarClassifierCascade(cvLoad(xmlFileName));
     }
 
     public ClassificationMetadata classify(Bitmap source) {
