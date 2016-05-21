@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         classifier = new CompositeImageClassifier(
-                new ImageClassifier(fileNameFor("paper.xml"), ClassificationType.PAPER),
-                new ImageClassifier(fileNameFor("rock.xml"), ClassificationType.ROCK),
+                new ImageClassifier(fileNameFor("paper2.xml"), ClassificationType.PAPER),
+                new ImageClassifier(fileNameFor("rock2.xml"), ClassificationType.ROCK),
                 new ImageClassifier(fileNameFor("scissors.xml"), ClassificationType.SCISSORS)
         );
 

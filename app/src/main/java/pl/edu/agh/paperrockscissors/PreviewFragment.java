@@ -38,7 +38,8 @@ public class PreviewFragment extends Fragment {
 
     private void updatePreview(ClassificationMetadata classificationMetadata) {
         previewImageView.setImageBitmap(classificationMetadata.getImage());
-        textView.setText(classificationMetadata.getType().toString());
+        final String resultInformation = classificationMetadata.getType().toString() + " " + classificationMetadata.getMatchScore();
+        textView.setText(resultInformation);
     }
 
     @Override
