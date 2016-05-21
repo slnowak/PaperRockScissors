@@ -38,7 +38,7 @@ public class CompositeClassifierFactory implements PaperRockScissorsClassifierFa
     }
 
     private PaperRockScissorsClassifier scissorsClassifier() {
-        return new OpenCVClassifier(haarClassifierFromFile("scissors.xml"), ClassificationType.ROCK);
+        return new OpenCVClassifier(haarClassifierFromFile("scissors.xml"), ClassificationType.SCISSORS);
     }
 
     private CvHaarClassifierCascade haarClassifierFromFile(String classifierFile) {
