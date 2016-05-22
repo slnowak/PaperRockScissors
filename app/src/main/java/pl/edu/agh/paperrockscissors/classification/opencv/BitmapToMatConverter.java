@@ -2,25 +2,25 @@ package pl.edu.agh.paperrockscissors.classification.opencv;
 
 import android.graphics.Bitmap;
 
-import org.bytedeco.javacpp.opencv_core.IplImage;
+import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacv.AndroidFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 
 /**
  * Created by novy on 15.05.16.
  */
-class BitmapToIplImageConverter {
+class BitmapToMatConverter {
 
     private final AndroidFrameConverter toFrameConverter;
-    private final OpenCVFrameConverter.ToIplImage toIplImageConverter;
+    private final OpenCVFrameConverter.ToMat toMatConverter;
 
-    BitmapToIplImageConverter() {
+    BitmapToMatConverter() {
         toFrameConverter = new AndroidFrameConverter();
-        toIplImageConverter = new OpenCVFrameConverter.ToIplImage();
+        toMatConverter = new OpenCVFrameConverter.ToMat();
     }
 
-    public IplImage toIplImage(Bitmap from) {
-        return toIplImageConverter.convert(
+    public Mat toMat(Bitmap from) {
+        return toMatConverter.convert(
                 toFrameConverter.convert(from)
         );
     }

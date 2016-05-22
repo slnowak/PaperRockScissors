@@ -13,7 +13,7 @@ import pl.edu.agh.paperrockscissors.classification.ClassificationType;
 import pl.edu.agh.paperrockscissors.classification.PaperRockScissorsClassifier;
 
 public class CompositePaperRockScissorsClassifier implements PaperRockScissorsClassifier {
-    private static final int CLASSIFICATION_THRESHOLD = 10000;
+    private static final int CLASSIFICATION_THRESHOLD = 20000;
     private final PaperRockScissorsClassifier paperPaperRockScissorsClassifier;
     private final PaperRockScissorsClassifier rockPaperRockScissorsClassifier;
     private final PaperRockScissorsClassifier scissorsPaperRockScissorsClassifier;
