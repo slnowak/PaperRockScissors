@@ -2,7 +2,7 @@ package pl.edu.agh.paperrockscissors.classification.opencv;
 
 import android.content.Context;
 
-import org.bytedeco.javacpp.opencv_objdetect;
+import org.opencv.objdetect.CascadeClassifier;
 
 import pl.edu.agh.paperrockscissors.classification.ClassificationType;
 import pl.edu.agh.paperrockscissors.classification.PaperRockScissorsClassifier;
@@ -41,7 +41,7 @@ public class CompositeClassifierFactory implements PaperRockScissorsClassifierFa
         return new OpenCVClassifier(haarClassifierFromFile("scissors.xml"), ClassificationType.SCISSORS);
     }
 
-    private opencv_objdetect.CascadeClassifier haarClassifierFromFile(String classifierFile) {
+    private CascadeClassifier haarClassifierFromFile(String classifierFile) {
         return haarCassifierFactory.trainedClassifierFrom(classifierFile);
     }
 }

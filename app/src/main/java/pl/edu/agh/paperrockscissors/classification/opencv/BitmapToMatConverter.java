@@ -2,26 +2,18 @@ package pl.edu.agh.paperrockscissors.classification.opencv;
 
 import android.graphics.Bitmap;
 
-import org.bytedeco.javacpp.opencv_core.Mat;
-import org.bytedeco.javacv.AndroidFrameConverter;
-import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+
 
 /**
  * Created by novy on 15.05.16.
  */
 class BitmapToMatConverter {
 
-    private final AndroidFrameConverter toFrameConverter;
-    private final OpenCVFrameConverter.ToMat toMatConverter;
-
-    BitmapToMatConverter() {
-        toFrameConverter = new AndroidFrameConverter();
-        toMatConverter = new OpenCVFrameConverter.ToMat();
-    }
-
     public Mat toMat(Bitmap from) {
-        return toMatConverter.convert(
-                toFrameConverter.convert(from)
-        );
+        final Mat placeholder = new Mat();
+        Utils.bitmapToMat(from, placeholder);
+        return placeholder;
     }
 }

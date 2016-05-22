@@ -2,7 +2,8 @@ package pl.edu.agh.paperrockscissors.classification.opencv.haarclassifier;
 
 import android.content.Context;
 
-import org.bytedeco.javacpp.opencv_objdetect.CascadeClassifier;
+import org.opencv.objdetect.CascadeClassifier;
+
 
 /**
  * Created by novy on 21.05.16.
