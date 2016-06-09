@@ -37,7 +37,7 @@ public class PreviewFragment extends Fragment {
 
     private void updatePreview(ClassificationMetadata classificationMetadata) {
         previewImageView.setImageBitmap(classificationMetadata.getImage());
-        final String resultInformation = classificationMetadata.getType().toString() + " " + classificationMetadata.getMatchScore();
+        final String resultInformation = classificationMetadata.getType().toString();
         textView.setText(resultInformation);
     }
 
